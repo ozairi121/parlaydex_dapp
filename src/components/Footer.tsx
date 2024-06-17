@@ -11,8 +11,14 @@ export const Footer: FC = () => {
                             <div className='flex flex-row ml-1'>
                                 <Link href="https://solana.com" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     <div className='flex flex-row ml-1'>
-                                        <Image
+                                        {/* <Image
                                             src="/solanaLogo.png"
+                                            alt="solana icon"
+                                            width={156}
+                                            height={96}
+                                        /> */}
+                                        <Image
+                                            src="/pikbetter_logo.svg"
                                             alt="solana icon"
                                             width={156}
                                             height={96}

@@ -5,6 +5,8 @@ import { SendTransaction } from '../../components/SendTransaction';
 import { SendVersionedTransaction } from '../../components/SendVersionedTransaction';
 import { CreatePrediction } from '../../components/CreatePrediction';
 import { BetSlip } from '../../components/BetSlip';
+import axios from 'axios';
+import { test_data } from './markets';
 import { parseMarkets } from '../../utils/markets';
 
 
@@ -25,6 +27,8 @@ meta_information:
 - event time
 - market name
 
+
+
 */
 
 const fetch_markets = async () => {
@@ -35,7 +39,7 @@ const fetch_markets = async () => {
 }
 
 
-export const HomeView: FC = ({ }) => {
+export const MarketsView: FC = ({ }) => {
   
   const [data, setData] = useState(null)
   const [current_selection, setCurrentSelection] = useState(null)

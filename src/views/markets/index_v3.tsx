@@ -5,6 +5,8 @@ import { SendTransaction } from '../../components/SendTransaction';
 import { SendVersionedTransaction } from '../../components/SendVersionedTransaction';
 import { CreatePrediction } from '../../components/CreatePrediction';
 import { BetSlip } from '../../components/BetSlip';
+import axios from 'axios';
+import { test_data } from './markets';
 import { parseMarkets } from '../../utils/markets';
 
 
@@ -25,17 +27,19 @@ meta_information:
 - event time
 - market name
 
+
+
 */
 
 const fetch_markets = async () => {
-  const response = await fetch('https://parlaydex.com/api/nba/markets')
+  const response = await fetch('http://127.0.0.1:8000/nba/markets')
   const data = await response.json()
   // console.log(data)
   return parseMarkets(data.markets)
 }
 
 
-export const HomeView: FC = ({ }) => {
+export const MarketsView: FC = ({ }) => {
   
   const [data, setData] = useState(null)
   const [current_selection, setCurrentSelection] = useState(null)
@@ -88,14 +92,12 @@ export const HomeView: FC = ({ }) => {
       </h1>
       <div className='flex gap-8 justify-center'>
           
-          <div className="w-2/3">
-            <ViewEvents data={data} setCurrentSelection={setCurrentSelection} add_selection={update_selections} />
+          <div className="w-2/4">
+            <ViewEvents data={data} setCurrentSelection={setCurrentSelection} />
           </div>
 
           <div className="w-1/4">
-            {current_selections.map( selection =>
-              <BetSlip data={selection} selection={selection} close={() => remove_selection(selection)} />
-            )}
+              <BetSlip data={current_selection} selection={current_selection} close={() => setCurrentSelection(null)} />
           </div>
 
       </div>
@@ -103,41 +105,34 @@ export const HomeView: FC = ({ }) => {
   );
 };
 
-function ViewEvents({ data, setCurrentSelection, add_selection }) {
+function ViewEvents({ data, setCurrentSelection }) {
   return (
     <>
     {data ? (
             data?.map(event => {
-              const start_time = new Date(`${event.event_meta.date} ${event.event_meta.time} GMT-0500`)
-              const start_time_string = start_time.toLocaleTimeString()
-              const date_string = start_time.toLocaleDateString()
-
               return (
-                <div className='border-b p-4 w-full' key={event.eventID}>
-                  <div className='flex items-center gap-4 mb-2'>
-                    <div>{date_string}</div>
-                    <div>{start_time_string}</div>
+                <div className='border p-4 w-full' key={event.eventID}>
+                  <div className='flex items-center'>
+                    <div>{event.event_meta.date}</div>
+                    <div>{event.event_meta.time}</div>
                   </div>
-                  <div className="flex gap-8">
-                  
-                    <div className='flex flex-col w-1/3'>
-                      <div className='flex items-center gap-4'>
-                        <img src={`/nba_logos/${event.event_meta.awayID.replace(/\s/g, '-').toLowerCase()}.svg`}
-                        className='w-12 h-12'
-                        />
-                        {event.event_meta.awayID}
-                      </div>
-                      <div className='text-center w-24 text-sm'>
-                        @
-                      </div>
-                      <div className='flex items-center gap-4'>
-                        <img src={`/nba_logos/${event.event_meta.homeID.replace(/\s/g, '-').toLowerCase()}.svg`}
-                        className='w-12 h-12'
-                        />
-                        {event.event_meta.homeID}
-                      </div>
+                  <div className='flex items-center'>
+                    <div className='flex items-center'>
+                      <img src={`/nba_logos/${event.event_meta.awayID.replace(/\s/g, '-').toLowerCase()}.svg`}
+                      className='w-16 h-16'
+                      />
+                      {event.event_meta.awayID}
                     </div>
-
+                    <div className='text-center w-24'>
+                      vs
+                    </div>
+                    <div className='flex items-center'>
+                      {event.event_meta.homeID}
+                      <img src={`/nba_logos/${event.event_meta.homeID.replace(/\s/g, '-').toLowerCase()}.svg`}
+                      className='w-16 h-16'
+                      />
+                    </div>
+                  </div>
                   <div className='flex flex-row items-center gap-4 text-center'>
                     {Object.keys(event.markets||{}).map(market_type => {
                       const markets = event.markets[market_type]
@@ -163,7 +158,7 @@ function ViewEvents({ data, setCurrentSelection, add_selection }) {
                                 }
                               }
                               return (
-                                <div className='border w-40 text-center rounded cursor-pointer hover:bg-gray-100' onClick={() => add_selection(this_selection)}
+                                <div className='border w-40 text-center rounded cursor-pointer hover:bg-gray-100' onClick={() => setCurrentSelection(this_selection)}
                                   key={market.selectionID}
                                 >
                                   <div>{market['full_name']}</div>
@@ -178,12 +173,6 @@ function ViewEvents({ data, setCurrentSelection, add_selection }) {
                     })}
                     
                   </div>
-
-                  </div>
-
-
-
-
                 </div>
               )
             })
